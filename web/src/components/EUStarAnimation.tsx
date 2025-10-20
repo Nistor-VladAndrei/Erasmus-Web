@@ -25,7 +25,21 @@ const getRandomPosition = (width: number, height: number) => ({
 
 export default function EUStarAnimation() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const controls = Array.from({ length: EU_STARS }, () => useAnimation());
+  // React hooks must be called in a fixed order, not in loops or callbacks
+  const controls: ReturnType<typeof useAnimation>[] = [
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+  ];
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -33,12 +47,11 @@ export default function EUStarAnimation() {
     const container = containerRef.current;
     const width = container.clientWidth;
     const height = container.clientHeight;
-    
+
     // Calculate circle parameters for EU flag
     const centerX = width / 2;
     const centerY = height / 2;
     const radius = Math.min(width, height) * 0.3;
-
     const finalPositions = getEUStarPositions(centerX, centerY, radius);
 
     // Animation sequence

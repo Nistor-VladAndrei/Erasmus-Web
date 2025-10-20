@@ -28,15 +28,19 @@ export class ArticlesController {
   }
 
   // Admin endpoint - Get all articles including unpublished
+  // MUST come BEFORE @Get(':id')
   @Get('admin')
   @UseGuards(JwtAuthGuard)
   async findAllForAdmin() {
+    console.log('=== ADMIN ENDPOINT HIT ==='); // Debug
     return this.articlesService.findAllForAdmin();
   }
 
   // Public endpoint - Get single article by ID
+  // MUST come AFTER specific routes like 'admin'
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    console.log('=== FIND ONE ENDPOINT HIT ===', id); // Debug
     return this.articlesService.findOne(id);
   }
 

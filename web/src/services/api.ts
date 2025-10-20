@@ -23,6 +23,7 @@ api.interceptors.request.use((config) => {
 export const authAPI = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
     const { data } = await api.post('/auth/login', { email, password });
+    
     return data;
   },
 };

@@ -28,7 +28,7 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - DB_DATABASE=fratii_buzesti
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_SECRET=dd78f0b8838262efe46967704cd3ed77
       - PORT=3001
     depends_on:
       - postgres

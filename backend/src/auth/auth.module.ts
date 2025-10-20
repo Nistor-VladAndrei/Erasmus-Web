@@ -11,12 +11,12 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'default-secret-key',
+      secret: process.env.JWT_SECRET || 'dd78f0b8838262efe46967704cd3ed77',
       signOptions: { expiresIn: process.env.JWT_EXPIRATION || '1d' },
     }),
   ],
-  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
-  exports: [AuthService],
+ providers: [AuthService, JwtStrategy],
+  exports: [AuthService, JwtStrategy, PassportModule], // Export these
 })
 export class AuthModule {}

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { LegacyAnimationControls, motion, useAnimation } from 'framer-motion';
 
 // EU flag has 12 stars arranged in a circle
 const EU_STARS = 12;
@@ -25,7 +25,7 @@ const getRandomPosition = (width: number, height: number) => ({
 
 export default function EUStarAnimation() {
   const containerRef = useRef<HTMLDivElement>(null);
-  // React hooks must be called in a fixed order, not in loops or callbacks
+  // Call hooks in fixed order — do not call hooks inside loops
   const controls: ReturnType<typeof useAnimation>[] = [
     useAnimation(),
     useAnimation(),
@@ -47,11 +47,12 @@ export default function EUStarAnimation() {
     const container = containerRef.current;
     const width = container.clientWidth;
     const height = container.clientHeight;
-
+    
     // Calculate circle parameters for EU flag
     const centerX = width / 2;
     const centerY = height / 2;
     const radius = Math.min(width, height) * 0.3;
+
     const finalPositions = getEUStarPositions(centerX, centerY, radius);
 
     // Animation sequence
@@ -171,7 +172,8 @@ export default function EUStarAnimation() {
               d={starPath}
               fill="#FFCC00"
               stroke="#FFCC00"
-              strokeWidth="1"
+              strokeWidth="5"
+              opacity={100}
               filter="drop-shadow(0 0 10px rgba(255, 204, 0, 0.5))"
             />
           </motion.g>

@@ -1,6 +1,6 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { LogIn, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '../components/Header.tsx';
@@ -13,6 +13,30 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Framer Motion controls
+  const controls = useAnimation();
+
+  // Define variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  // Start animation after mount (safe for SSR / Strict Mode)
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      // only start when component is still mounted
+      if (!mounted) return;
+      await controls.start('visible');
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [controls]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -37,9 +61,9 @@ export default function Login() {
 
       <div className="min-h-screen flex items-center justify-center px-6 pt-16">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial="hidden"
+          animate={controls}
+          variants={containerVariants}
           className="w-full max-w-md"
         >
           <GlassCard className="p-8">
@@ -48,9 +72,7 @@ export default function Login() {
                 <LogIn className="text-eu-yellow" size={32} />
               </div>
               <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
-              <p className="text-white/70">
-                Sign in to manage articles and content
-              </p>
+              <p className="text-white/70">Sign in to manage articles and content</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -106,8 +128,10 @@ export default function Login() {
 
             <div className="mt-6 p-4 glass rounded-lg">
               <p className="text-white/70 text-sm text-center">
-                <strong>Demo credentials:</strong><br />
-                Email: admin@fratii-buzesti.ro<br />
+                <strong>Demo credentials:</strong>
+                <br />
+                Email: admin@fratii-buzesti.ro
+                <br />
                 Password: admin123
               </p>
             </div>

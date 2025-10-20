@@ -8,7 +8,7 @@ import ArticlePage from './Pages/ArticlePage.tsx';
 import Login from './Pages/Login.tsx';
 import AdminDashboard from './Pages/AdminDashboard.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
-
+import Header from './components/Header.tsx';
 const queryClient = new QueryClient();
 
 function App() {
@@ -16,6 +16,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Toaster position="top-right" />
+        <Header/>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/news" element={<News />} />

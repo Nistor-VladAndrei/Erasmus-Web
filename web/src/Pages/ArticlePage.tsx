@@ -1,11 +1,12 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Share2 } from 'lucide-react';
 import Header from '../components/Header.tsx';
 import GlassCard from '../components/GlassCard.tsx';
 import { articlesAPI } from '../services/api.ts';
 import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function ArticlePage() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,11 @@ export default function ArticlePage() {
     queryFn: () => articlesAPI.getOne(id!),
     enabled: !!id,
   });
+  const controls = useAnimation();
+
+  useEffect(() => {
+    controls.start({ opacity: 1, y: 0 });
+  }, [controls]);
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('ro-RO', {

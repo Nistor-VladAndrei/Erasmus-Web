@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { LegacyAnimationControls, motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 
 // EU flag has 12 stars arranged in a circle
 const EU_STARS = 12;
@@ -25,20 +25,26 @@ const getRandomPosition = (width: number, height: number) => ({
 
 export default function EUStarAnimation() {
   const containerRef = useRef<HTMLDivElement>(null);
-  // Call hooks in fixed order — do not call hooks inside loops
-  const controls: ReturnType<typeof useAnimation>[] = [
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
-    useAnimation(),
+  
+  // Call all hooks at the top level - fixed order, no conditions
+  const control0 = useAnimation();
+  const control1 = useAnimation();
+  const control2 = useAnimation();
+  const control3 = useAnimation();
+  const control4 = useAnimation();
+  const control5 = useAnimation();
+  const control6 = useAnimation();
+  const control7 = useAnimation();
+  const control8 = useAnimation();
+  const control9 = useAnimation();
+  const control10 = useAnimation();
+  const control11 = useAnimation();
+
+  // Create array from the controls
+  const controls = [
+    control0, control1, control2, control3,
+    control4, control5, control6, control7,
+    control8, control9, control10, control11
   ];
 
   useEffect(() => {
@@ -104,7 +110,7 @@ export default function EUStarAnimation() {
       });
 
       // Scatter and reform every 20 seconds
-      setInterval(async () => {
+      const intervalId = setInterval(async () => {
         // Scatter
         await Promise.all(
           controls.map((control) => {
@@ -155,10 +161,17 @@ export default function EUStarAnimation() {
           });
         });
       }, 20000);
+
+      // Cleanup function
+      return () => clearInterval(intervalId);
     };
 
-    animate();
-  }, []);
+    const cleanup = animate();
+    
+    return () => {
+      cleanup?.then(fn => fn?.());
+    };
+  }, []); // Empty dependency array since controls are stable
 
   // Five-pointed star SVG path
   const starPath = "M 0,-20 L 5.88,-6.18 L 19.02,-6.18 L 9.51,2.94 L 14.27,16.18 L 0,7.06 L -14.27,16.18 L -9.51,2.94 L -19.02,-6.18 L -5.88,-6.18 Z";

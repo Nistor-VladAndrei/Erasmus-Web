@@ -104,7 +104,11 @@ export default function News() {
     queryFn: () => articlesAPI.getAll(1, 20),
   });
 
-  const filteredArticles = data?.data?.filter(article =>
+  interface ArticlesResponse {
+    data: Article[];
+  }
+
+  const filteredArticles: Article[] = data?.data?.filter((article: Article) =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
@@ -138,135 +142,132 @@ export default function News() {
   if (selectedArticle) {
     return (
       <>
-      <div className="min-h-screen bg-white">
-        {/* Hero Section with Cover Image */}
-        <section className="relative h-[60vh] overflow-hidden">
-          <motion.div
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="absolute inset-0"
-          >
-            {selectedArticle.coverImageUrl && (
-              <>
-                <img
-                  src={selectedArticle.coverImageUrl}
-                  alt={selectedArticle.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
-              </>
-            )}
-          </motion.div>
-
-          <div className="relative z-10 h-full flex flex-col justify-between p-6 md:p-12">
-            <motion.button
-              onClick={() => setSelectedArticle(null)}
-              className="inline-flex items-center space-x-2 text-white hover:text-blue-300 transition-colors self-start bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              whileHover={{ x: -5 }}
+        <div className="min-h-screen bg-white">
+          {/* Hero Section with Cover Image */}
+          <section className="relative h-[60vh] overflow-hidden">
+            <motion.div
+              initial={{ scale: 1.1 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="absolute inset-0"
             >
-              <ArrowRight size={20} className="rotate-180" />
-              <span>Back to News</span>
-            </motion.button>
+              {selectedArticle.coverImageUrl && (
+                <>
+                  <img
+                    src={selectedArticle.coverImageUrl}
+                    alt={selectedArticle.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+                </>
+              )}
+            </motion.div>
 
-            <div className="max-w-4xl">
+            {/* ------------- CHANGED: overlay now centers title block and places the Back button above H1 ------------- */}
+            <div className="relative z-10 h-full flex items-center p-6 md:p-12 pt-16 md:pt-20">
+              <div className="max-w-4xl w-full">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                  className="flex flex-col items-start"
+                >
+                  {/* Back button moved here so it sits immediately above the title */}
+                  <motion.button
+                    onClick={() => setSelectedArticle(null)}
+                    className="inline-flex items-center space-x-2 text-white hover:text-blue-300 transition-colors bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.45, delay: 0.05 }}
+                    whileHover={{ x: -4 }}
+                  >
+                    <ArrowRight size={20} className="rotate-180" />
+                    <span>Back to News</span>
+                  </motion.button>
+
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+                    {selectedArticle.title}
+                  </h1>
+                  {selectedArticle.excerpt && (
+                    <p className="text-xl text-white/90 font-light">
+                      {selectedArticle.excerpt}
+                    </p>
+                  )}
+                </motion.div>
+              </div>
+            </div>
+          </section>
+
+          {/* Article Content */}
+          <div className="py-16 px-6">
+            <div className="container mx-auto max-w-4xl">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
               >
-                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
-                  {selectedArticle.title}
-                </h1>
-                {selectedArticle.excerpt && (
-                  <p className="text-xl text-white/90 font-light">
-                    {selectedArticle.excerpt}
-                  </p>
-                )}
+                <GlassCard className="rounded-3xl overflow-hidden">
+                  <div className="p-8 md:p-12">
+                    {/* Article Meta */}
+                    <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-12 pb-8 border-b border-gray-200">
+                      <motion.div 
+                        className="flex items-center space-x-2"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                          {selectedArticle.author.email.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Author</p>
+                          <p className="font-medium text-gray-900">{selectedArticle.author.email.split('@')[0]}</p>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="flex items-center space-x-2"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Calendar size={20} className="text-blue-600" />
+                        <div>
+                          <p className="text-sm text-gray-500">Published</p>
+                          <p className="font-medium text-gray-900">{formatDate(selectedArticle.createdAt)}</p>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.button
+                        onClick={() => handleShare(selectedArticle)}
+                        className="ml-auto flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:shadow-lg transition-all"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <span>Share</span>
+                        <ArrowRight size={18} />
+                      </motion.button>
+                    </div>
+
+                    {/* Article Body */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 0.7 }}
+                      className="prose prose-lg max-w-none"
+                      dangerouslySetInnerHTML={{ __html: selectedArticle.content }}
+                      style={{
+                        color: '#374151',
+                      }}
+                    />
+                  </div>
+                </GlassCard>
               </motion.div>
             </div>
           </div>
-        </section>
 
-        {/* Article Content */}
-        <div className="py-16 px-6">
-          <div className="container mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <GlassCard className="rounded-3xl overflow-hidden">
-                <div className="p-8 md:p-12">
-                  {/* Article Meta */}
-                  <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-12 pb-8 border-b border-gray-200">
-                    <motion.div 
-                      className="flex items-center space-x-2"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
-                        {selectedArticle.author.email.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Author</p>
-                        <p className="font-medium text-gray-900">{selectedArticle.author.email.split('@')[0]}</p>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.div 
-                      className="flex items-center space-x-2"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <Calendar size={20} className="text-blue-600" />
-                      <div>
-                        <p className="text-sm text-gray-500">Published</p>
-                        <p className="font-medium text-gray-900">{formatDate(selectedArticle.createdAt)}</p>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.button
-                      onClick={() => handleShare(selectedArticle)}
-                      className="ml-auto flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:shadow-lg transition-all"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <span>Share</span>
-                      <ArrowRight size={18} />
-                    </motion.button>
-                  </div>
-
-                  {/* Article Body */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.7 }}
-                    className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: selectedArticle.content }}
-                    style={{
-                      color: '#374151',
-                    }}
-                  />
-                </div>
-              </GlassCard>
-            </motion.div>
-          </div>
+         
         </div>
-
-        {/* Footer */}
-        <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 py-12 px-6 mt-16">
-          <div className="container mx-auto max-w-4xl text-center">
-            <p className="text-gray-600">
-              © 2025 Colegiul Național "Frații Buzești" • Erasmus+ Program
-            </p>
-          </div>
-        </footer>
-      </div>
       </>
     );
-  }
+}
+
 
   // News List View
   return (
@@ -382,12 +383,12 @@ export default function News() {
 
               {/* Articles Grid */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredArticles.map((article, index) => (
+                {filteredArticles.map((article: Article, index: number) => (
                   <ArticleCard 
-                    key={article.id} 
-                    article={article} 
-                    index={index}
-                    onClick={setSelectedArticle}
+                  key={article.id} 
+                  article={article} 
+                  index={index}
+                  onClick={setSelectedArticle}
                   />
                 ))}
               </div>

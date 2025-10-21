@@ -17,9 +17,11 @@ import {
   Heading2,
   Image as ImageIcon,
   Link as LinkIcon,
+  Eye,
+  FileText,
+  Upload,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Header from '../components/Header.tsx';
 import GlassCard from '../components/GlassCard.tsx';
 import { articlesAPI, uploadAPI } from '../services/api.ts';
 
@@ -54,14 +56,14 @@ export default function ArticleEditor() {
       TiptapLink.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-eu-yellow hover:underline',
+          class: 'text-blue-600 hover:underline',
         },
       }),
     ],
     content: '',
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none focus:outline-none min-h-[400px] px-6 py-4',
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[400px] px-6 py-4 text-gray-900',
       },
     },
   });
@@ -182,236 +184,287 @@ export default function ArticleEditor() {
     });
   };
 
-
   if (isEditMode && !article) {
     return (
-      <div className="min-h-screen">
-        <Header />
+      <div className="min-h-screen bg-white">
         <div className="flex justify-center items-center py-20">
-          <Loader2 className="animate-spin text-white" size={48} />
+          <Loader2 className="animate-spin text-blue-600" size={48} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header Section */}
+      <section className="relative bg-gradient-to-br from-blue-600 to-indigo-700 pt-32 pb-12 px-4 sm:px-6 overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+            backgroundSize: '50px 50px',
+          }} />
+        </div>
 
-      <div className="pt-24 pb-16 px-6">
-        <div className="container mx-auto max-w-5xl">
+        <div className="container mx-auto max-w-5xl relative z-10">
           <Link
             to="/admin"
-            className="inline-flex items-center space-x-2 text-white hover:text-eu-yellow transition-colors mb-8"
+            className="inline-flex items-center space-x-2 text-white hover:text-white/80 transition-colors mb-6"
           >
             <ArrowLeft size={20} />
             <span>Back to Dashboard</span>
           </Link>
 
-          <motion.h1
-            className="text-4xl font-bold text-white mb-8"
-            initial={{ opacity: 0, y: -20 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            {isEditMode ? 'Edit Article' : 'Create New Article'}
-          </motion.h1>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">
+              {isEditMode ? 'Edit Article' : 'Create New Article'}
+            </h1>
+            <p className="text-white/80 text-lg">
+              {isEditMode ? 'Update your article content' : 'Share your Erasmus+ experience with the world'}
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
-          <form onSubmit={handleSubmit}>
-            <GlassCard className="p-8 mb-6">
-              <div className="space-y-6">
-                {/* Title */}
-                <div>
-                  <label htmlFor="title" className="block text-white font-medium mb-2">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 rounded-lg glass text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-eu-yellow"
-                    placeholder="Enter article title"
-                  />
+      {/* Editor Section */}
+      <div className="py-12 px-4 sm:px-6">
+        <div className="container mx-auto max-w-5xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Info Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <GlassCard className="p-6 sm:p-8 rounded-3xl">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <FileText className="text-white" size={20} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">Basic Information</h2>
                 </div>
 
-                {/* Excerpt */}
-                <div>
-                  <label htmlFor="excerpt" className="block text-white font-medium mb-2">
-                    Excerpt *
-                  </label>
-                  <textarea
-                    id="excerpt"
-                    value={excerpt}
-                    onChange={(e) => setExcerpt(e.target.value)}
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg glass text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-eu-yellow resize-none"
-                    placeholder="Brief description of the article"
-                  />
-                </div>
-
-                {/* Cover Image */}
-                <div>
-                  <label htmlFor="coverImage" className="block text-white font-medium mb-2">
-                    Cover Image URL
-                  </label>
-                  <div className="flex space-x-4">
+                <div className="space-y-6">
+                  {/* Title */}
+                  <div>
+                    <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">
+                      Article Title *
+                    </label>
                     <input
-                      type="url"
-                      id="coverImage"
-                      value={coverImageUrl}
-                      onChange={(e) => setCoverImageUrl(e.target.value)}
-                      className="flex-1 px-4 py-3 rounded-lg glass text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-eu-yellow"
-                      placeholder="https://example.com/image.jpg"
+                      type="text"
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all bg-white"
+                      placeholder="Enter a catchy title for your article"
                     />
-                    <label className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white font-medium cursor-pointer transition-colors flex items-center space-x-2">
-                      <ImageIcon size={18} />
-                      <span>Upload</span>
+                  </div>
+
+                  {/* Excerpt */}
+                  <div>
+                    <label htmlFor="excerpt" className="block text-gray-700 font-semibold mb-2">
+                      Short Description *
+                    </label>
+                    <textarea
+                      id="excerpt"
+                      value={excerpt}
+                      onChange={(e) => setExcerpt(e.target.value)}
+                      required
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all bg-white resize-none"
+                      placeholder="Write a brief description that will appear in the article preview"
+                    />
+                  </div>
+
+                  {/* Cover Image */}
+                  <div>
+                    <label htmlFor="coverImage" className="block text-gray-700 font-semibold mb-2">
+                      Cover Image
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-4">
                       <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleCoverImageUpload}
-                        className="hidden"
-                        disabled={isUploading}
+                        type="url"
+                        id="coverImage"
+                        value={coverImageUrl}
+                        onChange={(e) => setCoverImageUrl(e.target.value)}
+                        className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all bg-white"
+                        placeholder="https://example.com/image.jpg"
                       />
+                      <label className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg rounded-xl text-white font-semibold cursor-pointer transition-all flex items-center justify-center space-x-2">
+                        <Upload size={18} />
+                        <span>Upload</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCoverImageUpload}
+                          className="hidden"
+                          disabled={isUploading}
+                        />
+                      </label>
+                    </div>
+                    {coverImageUrl && (
+                      <motion.img
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        src={coverImageUrl}
+                        alt="Cover preview"
+                        className="mt-4 w-full h-64 object-cover rounded-xl"
+                      />
+                    )}
+                  </div>
+
+                  {/* Published Status */}
+                  <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-xl">
+                    <input
+                      type="checkbox"
+                      id="published"
+                      checked={published}
+                      onChange={(e) => setPublished(e.target.checked)}
+                      className="w-5 h-5 rounded bg-white border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <label htmlFor="published" className="text-gray-900 font-medium cursor-pointer flex items-center space-x-2">
+                      <Eye size={18} />
+                      <span>Publish immediately</span>
                     </label>
                   </div>
-                  {coverImageUrl && (
-                    <img
-                      src={coverImageUrl}
-                      alt="Cover preview"
-                      className="mt-4 w-full h-48 object-cover rounded-lg"
-                    />
-                  )}
                 </div>
+              </GlassCard>
+            </motion.div>
 
-                {/* Published Status */}
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="published"
-                    checked={published}
-                    onChange={(e) => setPublished(e.target.checked)}
-                    className="w-5 h-5 rounded bg-white/10 border-white/20 text-eu-yellow focus:ring-2 focus:ring-eu-yellow"
-                />
-        <label htmlFor="published" className="text-white font-medium cursor-pointer">
-        Published
-        </label>
-    </div>
-    </div>
-</GlassCard>
-          {/* Editor Toolbar */}
-        <GlassCard className="p-4 mb-2">
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleBold().run()}
-              className={`p-2 rounded hover:bg-white/20 transition-colors ${
-                editor?.isActive('bold') ? 'bg-white/20 text-eu-yellow' : 'text-white'
-              }`}
-              title="Bold"
+            {/* Editor Toolbar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Bold size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleItalic().run()}
-              className={`p-2 rounded hover:bg-white/20 transition-colors ${
-                editor?.isActive('italic') ? 'bg-white/20 text-eu-yellow' : 'text-white'
-              }`}
-              title="Italic"
-            >
-              <Italic size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`p-2 rounded hover:bg-white/20 transition-colors ${
-                editor?.isActive('heading', { level: 2 }) ? 'bg-white/20 text-eu-yellow' : 'text-white'
-              }`}
-              title="Heading 2"
-            >
-              <Heading2 size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleBulletList().run()}
-              className={`p-2 rounded hover:bg-white/20 transition-colors ${
-                editor?.isActive('bulletList') ? 'bg-white/20 text-eu-yellow' : 'text-white'
-              }`}
-              title="Bullet List"
-            >
-              <List size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-              className={`p-2 rounded hover:bg-white/20 transition-colors ${
-                editor?.isActive('orderedList') ? 'bg-white/20 text-eu-yellow' : 'text-white'
-              }`}
-              title="Numbered List"
-            >
-              <ListOrdered size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={triggerImageUpload}
-              disabled={isUploading}
-              className="p-2 rounded hover:bg-white/20 transition-colors text-white disabled:opacity-50"
-              title="Insert Image"
-            >
-              <ImageIcon size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={addLink}
-              className={`p-2 rounded hover:bg-white/20 transition-colors ${
-                editor?.isActive('link') ? 'bg-white/20 text-eu-yellow' : 'text-white'
-              }`}
-              title="Add Link"
-            >
-              <LinkIcon size={18} />
-            </button>
-          </div>
-        </GlassCard>
+              <GlassCard className="p-4 rounded-2xl">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleBold().run()}
+                    className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
+                      editor?.isActive('bold') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                    }`}
+                    title="Bold"
+                  >
+                    <Bold size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleItalic().run()}
+                    className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
+                      editor?.isActive('italic') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                    }`}
+                    title="Italic"
+                  >
+                    <Italic size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                    className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
+                      editor?.isActive('heading', { level: 2 }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                    }`}
+                    title="Heading 2"
+                  >
+                    <Heading2 size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                    className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
+                      editor?.isActive('bulletList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                    }`}
+                    title="Bullet List"
+                  >
+                    <List size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                    className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
+                      editor?.isActive('orderedList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                    }`}
+                    title="Numbered List"
+                  >
+                    <ListOrdered size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={triggerImageUpload}
+                    disabled={isUploading}
+                    className="p-3 rounded-xl hover:bg-blue-100 transition-colors text-gray-700 disabled:opacity-50"
+                    title="Insert Image"
+                  >
+                    <ImageIcon size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addLink}
+                    className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
+                      editor?.isActive('link') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                    }`}
+                    title="Add Link"
+                  >
+                    <LinkIcon size={18} />
+                  </button>
+                </div>
+              </GlassCard>
+            </motion.div>
 
-        {/* Content Editor */}
-        <GlassCard className="mb-6">
-          <label className="block text-white font-medium p-6 pb-0">
-            Content *
-          </label>
-          <EditorContent editor={editor} />
-        </GlassCard>
+            {/* Content Editor */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <GlassCard className="rounded-3xl overflow-hidden">
+                <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-900">Article Content *</h2>
+                  <p className="text-gray-600 text-sm mt-1">Write your article content below</p>
+                </div>
+                <EditorContent editor={editor} />
+              </GlassCard>
+            </motion.div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end space-x-4">
-          <Link
-            to="/admin"
-            className="px-6 py-3 glass rounded-lg text-white hover:bg-white/20 transition-colors"
-          >
-            Cancel
-          </Link>
-          <button
-            type="submit"
-            disabled={saveMutation.isPending || isUploading}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-eu-blue to-blue-600 rounded-lg text-white font-semibold hover:shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saveMutation.isPending ? (
-              <>
-                <Loader2 className="animate-spin" size={20} />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save size={20} />
-                <span>{isEditMode ? 'Update Article' : 'Create Article'}</span>
-              </>
-            )}
-          </button>
+            {/* Submit Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex flex-col sm:flex-row justify-end gap-4"
+            >
+              <Link
+                to="/admin"
+                className="px-8 py-3 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-colors text-center"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={saveMutation.isPending || isUploading}
+                className="flex items-center justify-center space-x-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-semibold hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saveMutation.isPending ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save size={20} />
+                    <span>{isEditMode ? 'Update Article' : 'Create Article'}</span>
+                  </>
+                )}
+              </button>
+            </motion.div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
-  </div>
-</div>
-);
+  );
 }

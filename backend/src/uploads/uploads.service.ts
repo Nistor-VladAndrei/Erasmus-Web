@@ -19,7 +19,7 @@ export class UploadsService {
 
   generateFileUrl(filename: string): string {
     // Return URL that will be accessible from the frontend
-    const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
+    const baseUrl = process.env.BASE_URL ;
     return `${baseUrl}/uploads/${filename}`;
   }
 }

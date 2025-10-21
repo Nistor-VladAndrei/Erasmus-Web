@@ -17,12 +17,12 @@ export default function Header({ transparent = false }: HeaderProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 ${
+      className={`fixed top-0 left-0 right-0 z-50 h-20 ${
         transparent ? 'bg-transparent' : 'glass'
       }`}
     >
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto px-6 h-full">
+        <div className="flex items-center justify-between h-full">
           <Link to="/" className="flex items-center space-x-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-eu-blue to-blue-600 flex items-center justify-center">
               <span className="text-eu-yellow text-2xl font-bold">★</span>

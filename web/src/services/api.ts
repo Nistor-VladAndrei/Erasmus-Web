@@ -30,47 +30,36 @@ export const authAPI = {
 
 // Articles API
 export const articlesAPI = {
-  getAll: async (page = 1, limit = 10): Promise<ArticlesResponse> => {
-    const { data } = await api.get(`/articles?page=${page}&limit=${limit}`);
-    return data;
-  },
+  getAll: (page: number, limit: number) =>
+    api.get(`/articles?page=${page}&limit=${limit}`).then(res => res.data),
 
-  getAllForAdmin: async (): Promise<Article[]> => {
-    const { data } = await api.get('/articles/admin');
-    return data;
-  },
+  getAllForAdmin: () =>
+    api.get('/articles/admin').then(res => res.data),
 
-  getOne: async (id: string): Promise<Article> => {
-    const { data } = await api.get(`/articles/${id}`);
-    return data;
-  },
+  getOne: (id: string) =>
+    api.get(`/articles/${id}`).then(res => res.data),
 
-  create: async (article: Partial<Article>): Promise<Article> => {
-    const { data } = await api.post('/articles', article);
-    return data;
-  },
+  create: (data: any) =>
+    api.post('/articles', data).then(res => res.data),
 
-  update: async (id: string, article: Partial<Article>): Promise<Article> => {
-    const { data } = await api.put('/articles/${id}', article);
-    return data;
-} ,
-    delete: async (id: string): Promise<void> => {
-          await api.delete('/articles/${id}'
-          );
-    },
-    };
+  update: (id: string, data: any) =>
+    api.put(`/articles/${id}`, data).then(res => res.data),
+
+  delete: (id: string) =>
+    api.delete(`/articles/${id}`).then(res => res.data),
+};
     // Upload API
-    export const uploadAPI = {
+  export const uploadAPI = {
     uploadImage: async (file: File): Promise<{ url: string }> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const { data } = await api.post('/upload', formData, {
-    headers: {
-        'Content-Type': 'multipart/form-data',
-    },
-    });
-
-    return data;
-    },
-    };
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await api.post('/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+       });
+        console.log(data);
+        return data;
+      },
+  };
 export default api;

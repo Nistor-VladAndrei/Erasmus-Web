@@ -153,34 +153,34 @@ export default function ArticleEditor() {
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const token = localStorage.getItem('token');
-  if (!token) {
-    toast.error('You are not logged in');
-    return;
-  }
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('You are not logged in');
+      return;
+    }
 
-  if (!editor) {
-    toast.error('Editor not initialized');
-    return;
-  }
+    if (!editor) {
+      toast.error('Editor not initialized');
+      return;
+    }
 
-  const content = editor.getHTML();
+    const content = editor.getHTML();
 
-  if (!title.trim() || !excerpt.trim() || !content || content === '<p></p>') {
-    toast.error('Please fill in all required fields');
-    return;
-  }
+    if (!title.trim() || !excerpt.trim() || !content || content === '<p></p>') {
+      toast.error('Please fill in all required fields');
+      return;
+    }
 
-  saveMutation.mutate({
-    title,
-    excerpt,
-    content,
-    coverImageUrl: coverImageUrl || undefined,
-    published,
-  });
-};
+    saveMutation.mutate({
+      title,
+      excerpt,
+      content,
+      coverImageUrl: coverImageUrl || undefined,
+      published,
+    });
+  };
 
 
   if (isEditMode && !article) {
@@ -196,7 +196,6 @@ export default function ArticleEditor() {
 
   return (
     <div className="min-h-screen">
-      <Header />
 
       <div className="pt-24 pb-16 px-6">
         <div className="container mx-auto max-w-5xl">

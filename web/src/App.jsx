@@ -9,6 +9,7 @@ import Login from './Pages/Login.tsx';
 import AdminDashboard from './Pages/AdminDashboard.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import Header from './components/Header.tsx';
+import Footer from './components/Footer.jsx';
 const queryClient = new QueryClient();
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
             }
           />
         </Routes>
+        <Footer></Footer>
       </BrowserRouter>
     </QueryClientProvider>
   );

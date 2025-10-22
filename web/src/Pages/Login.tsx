@@ -106,7 +106,7 @@ export default function Login() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-2xl sm:text-3xl font-bold text-white mb-2"
               >
-                Admin Portal
+                Student Portal
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -212,6 +212,7 @@ export default function Login() {
               </div>
 
               {/* Demo Credentials */}
+              {/*
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,20 +236,12 @@ export default function Login() {
                   </div>
                 </GlassCard>
               </motion.div>
+              */}
             </div>
           </GlassCard>
 
           {/* Footer Text */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="mt-6 sm:mt-8 text-center px-4"
-          >
-            <p className="text-gray-500 text-xs sm:text-sm">
-              Colegiul Național "Frații Buzești" • Erasmus+ Program
-            </p>
-          </motion.div>
+          
         </motion.div>
       </div>
 

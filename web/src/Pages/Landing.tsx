@@ -1,34 +1,80 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Globe, Users, Award, MapPin, Calendar, Heart } from 'lucide-react';
+import { School, ArrowRight, Globe, Users, Award, MapPin, Calendar, Heart, Loader2 } from 'lucide-react';
 import Header from '../components/Header.tsx';
 import EUStarAnimation from '../components/EUStarAnimation.tsx';
 import GlassCard from '../components/GlassCard.tsx';
 import { useEffect, useState } from 'react';
+import { Article } from '../Types/types.ts';
+import { articlesAPI } from '../services/api.ts';
+import { useQuery } from '@tanstack/react-query';
 
-const latestNews = [
-  {
-    id: 1,
-    title: "Student Exchange Program in Barcelona",
-    date: "2025-10-15",
-    excerpt: "Our students participated in a week-long cultural exchange program, exploring innovation and creativity.",
-    image: "https://images.unsplash.com/photo-1562095241-8c6714fd4178?w=800&q=80"
-  },
-  {
-    id: 2,
-    title: "Teacher Training Workshop in Berlin",
-    date: "2025-10-10",
-    excerpt: "Educators enhanced their skills in digital teaching methodologies and modern pedagogical approaches.",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=80"
-  },
-  {
-    id: 3,
-    title: "International Project Week Success",
-    date: "2025-10-05",
-    excerpt: "Students from five countries collaborated on sustainability projects, creating lasting friendships.",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80"
-  }
-];
+interface ArticleCardProps {
+  article: Article;
+  index: number;
+  onClick: (article: Article) => void;
+}
+
+
+
+function ArticleCard({ article, index, onClick }: ArticleCardProps) {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 60 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      whileHover={{ y: -10 }}
+      className="group cursor-pointer h-full"
+      onClick={() => onClick(article)}
+    >
+      <GlassCard className="overflow-hidden rounded-2xl h-full flex flex-col">
+        {article.coverImageUrl && (
+          <div className="relative h-64 overflow-hidden">
+            <img
+              src={article.coverImageUrl}
+              alt={article.title}
+              className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        )}
+        <div className="p-8 flex-1 flex flex-col">
+          <div className="flex items-center text-gray-500 text-sm mb-4">
+            <Calendar size={16} className="mr-2" />
+            <span>{formatDate(article.createdAt)}</span>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors line-clamp-2">
+            {article.title}
+          </h3>
+          {article.excerpt && (
+            <p className="text-gray-600 leading-relaxed mb-6 flex-1 line-clamp-3">
+              {article.excerpt}
+            </p>
+          )}
+          <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-200">
+            <div className="flex items-center text-gray-500 text-sm">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-semibold mr-2">
+                {article.author.email.charAt(0).toUpperCase()}
+              </div>
+              <span>{article.author.email.split('@')[0]}</span>
+            </div>
+            <span className="inline-flex items-center text-blue-600 font-medium group-hover:gap-3 gap-2 transition-all">
+              Read <ArrowRight size={18} />
+            </span>
+          </div>
+        </div>
+      </GlassCard>
+    </motion.div>
+  );
+}
 
 // Partners data
 const partners = [
@@ -42,12 +88,178 @@ const partners = [
 
 export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
+   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['articles'],
+    queryFn: () => articlesAPI.getAll(1, 3),
+  });
+
+  interface ArticlesResponse {
+    data: Article[];
+  }
+
+
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const handleShare = async (article: Article) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: article.title,
+          text: article.excerpt,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (selectedArticle) {
+      return (
+        <>
+          <div className="min-h-screen bg-white">
+            {/* Hero Section with Cover Image */}
+            <section className="relative h-[60vh] overflow-hidden">
+              <motion.div
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute inset-0"
+              >
+                {selectedArticle.coverImageUrl && (
+                  <>
+                    <img
+                      src={selectedArticle.coverImageUrl}
+                      alt={selectedArticle.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+                  </>
+                )}
+              </motion.div>
+  
+              {/* ------------- CHANGED: overlay now centers title block and places the Back button above H1 ------------- */}
+              <div className="relative z-10 h-full flex items-center p-6 md:p-12 pt-16 md:pt-20">
+                <div className="max-w-4xl w-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="flex flex-col items-start"
+                  >
+                    {/* Back button moved here so it sits immediately above the title */}
+                    <motion.button
+                      onClick={() => setSelectedArticle(null)}
+                      className="inline-flex items-center space-x-2 text-white hover:text-blue-300 transition-colors bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.45, delay: 0.05 }}
+                      whileHover={{ x: -4 }}
+                    >
+                      <ArrowRight size={20} className="rotate-180" />
+                      <span>Back to Home</span>
+                    </motion.button>
+  
+                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+                      {selectedArticle.title}
+                    </h1>
+                    {selectedArticle.excerpt && (
+                      <p className="text-xl text-white/90 font-light">
+                        {selectedArticle.excerpt}
+                      </p>
+                    )}
+                  </motion.div>
+                </div>
+              </div>
+            </section>
+  
+            {/* Article Content */}
+            <div className="py-16 px-6">
+              <div className="container mx-auto max-w-4xl">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                >
+                  <GlassCard className="rounded-3xl overflow-hidden">
+                    <div className="p-8 md:p-12">
+                      {/* Article Meta */}
+                      <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-12 pb-8 border-b border-gray-200">
+                        <motion.div 
+                          className="flex items-center space-x-2"
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                            {selectedArticle.author.email.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Author</p>
+                            <p className="font-medium text-gray-900">{selectedArticle.author.email.split('@')[0]}</p>
+                          </div>
+                        </motion.div>
+                        
+                        <motion.div 
+                          className="flex items-center space-x-2"
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <Calendar size={20} className="text-blue-600" />
+                          <div>
+                            <p className="text-sm text-gray-500">Published</p>
+                            <p className="font-medium text-gray-900">{formatDate(selectedArticle.createdAt)}</p>
+                          </div>
+                        </motion.div>
+                        
+                        <motion.button
+                          onClick={() => handleShare(selectedArticle)}
+                          className="ml-auto flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:shadow-lg transition-all"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <span>Share</span>
+                          <ArrowRight size={18} />
+                        </motion.button>
+                      </div>
+  
+                      {/* Article Body */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.7 }}
+                        className="prose prose-lg max-w-none"
+                        dangerouslySetInnerHTML={{ __html: selectedArticle.content }}
+                        style={{
+                          color: '#374151',
+                        }}
+                      />
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              </div>
+            </div>
+  
+           
+          </div>
+        </>
+      );
+  }
 
   return (
     <>
@@ -143,7 +355,7 @@ export default function Landing() {
               <div className="grid md:grid-cols-3 gap-12 mt-16">
                 {[
                   { icon: Globe, title: "International Partnerships", desc: "Collaborating with schools across Europe", color: "blue" },
-                  { icon: Users, title: "Student Mobility", desc: "Exchange programs and study visits", color: "indigo" },
+                  { icon: Users, title: "Student Mobility", desc: "Exchange programs and study visits", color: "blue" },
                   { icon: Award, title: "Professional Development", desc: "Teacher training and workshops", color: "blue" }
                 ].map((item, i) => (
                   <motion.div
@@ -190,46 +402,29 @@ export default function Landing() {
               Stay updated with our recent activities and achievements
             </p>
           </motion.div>
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-32"
+            >
+              <Loader2 className="animate-spin text-blue-600 mb-4" size={64} />
+              <p className="text-gray-600 text-lg">Loading articles...</p>
+            </motion.div>
+          )}
 
+          {data && (
           <div className="grid md:grid-cols-3 gap-8">
-            {latestNews.map((news, i) => (
-              <motion.div
-                key={news.id}
-                initial={{ opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                whileHover={{ y: -10 }}
-                className="group cursor-pointer"
-              >
-                <GlassCard className="overflow-hidden rounded-2xl h-full">
-                  <div className="relative h-56 overflow-hidden">
-                    <img 
-                      src={news.image} 
-                      alt={news.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  </div>
-                  <div className="p-8">
-                    <div className="flex items-center text-gray-500 text-sm mb-4">
-                      <Calendar size={16} className="mr-2" />
-                      <span>{new Date(news.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                    </div>
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
-                      {news.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed mb-6">
-                      {news.excerpt}
-                    </p>
-                    <span className="inline-flex items-center text-blue-600 font-medium group-hover:gap-3 gap-2 transition-all">
-                      Read more <ArrowRight size={18} />
-                    </span>
-                  </div>
-                </GlassCard>
-              </motion.div>
+            {data.data.map((article: Article, index: number) => (
+                  <ArticleCard 
+                  key={article.id} 
+                  article={article} 
+                  index={index}
+                  onClick={setSelectedArticle}
+                  />
             ))}
           </div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -296,40 +491,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 py-16 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <div className="mb-8">
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                  Colegiul Național "Frații Buzești"
-                </h3>
-                <p className="text-gray-600 text-lg">
-                  Craiova, România
-                </p>
-              </div>
-
-              <div className="flex items-center justify-center space-x-2 text-gray-600 mb-8">
-                <span className="text-lg">Made with</span>
-                <Heart size={20} className="text-red-500 fill-current animate-pulse" />
-                <span className="text-lg">by</span>
-                <span className="text-lg font-semibold text-blue-600">Vlad Nistor</span>
-              </div>
-
-              <div className="text-gray-500 text-sm">
-                <p>&copy; 2025 Erasmus+ Program. All rights reserved.</p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </footer>
     </div>
     </>
   );

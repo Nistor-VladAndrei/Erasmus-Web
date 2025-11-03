@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, LogOut, Home, Newspaper, Shield } from 'lucide-react';
 
 interface HeaderProps {
@@ -7,15 +7,19 @@ interface HeaderProps {
 
 export default function Header({ transparent = false }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  // Mock auth state - replace with your actual authService
-  const isAuthenticated = false; // authService.isAuthenticated();
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
   
   const handleLogout = () => {
-    // authService.logout();
-    // navigate('/');
-    console.log('Logout clicked');
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
     setIsMenuOpen(false);
+    window.location.href = '/';
   };
 
   const handleNavClick = () => {
@@ -69,7 +73,7 @@ export default function Header({ transparent = false }: HeaderProps) {
                   href="/admin"
                   className="text-gray-800 hover:text-blue-600 transition-colors font-medium drop-shadow-sm"
                 >
-                  Admin
+                  Profile
                 </a>
                 <button
                   onClick={handleLogout}
@@ -80,12 +84,20 @@ export default function Header({ transparent = false }: HeaderProps) {
                 </button>
               </>
             ) : (
+              <>
+               <a
+                  href="/signup"
+                  className="text-gray-800 hover:text-blue-600 transition-colors font-medium drop-shadow-sm"
+                >
+                  Sign Up
+                </a>
               <a
                 href="/login"
                 className="px-5 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Login
               </a>
+              </>
             )}
           </nav>
 
@@ -131,7 +143,7 @@ export default function Header({ transparent = false }: HeaderProps) {
                     className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-800 hover:bg-blue-50/80 hover:text-blue-600 transition-all font-medium backdrop-blur-sm"
                   >
                     <Shield size={20} />
-                    <span>Admin</span>
+                    <span>Profile</span>
                   </a>
                   <button
                     onClick={handleLogout}

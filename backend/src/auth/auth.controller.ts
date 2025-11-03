@@ -1,21 +1,28 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, Param, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/SignupDto.dto';
 import { Headers } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService,
-              private jwtService: JwtService, // Inject JwtService
-
+  constructor(
+    private authService: AuthService,
+    private jwtService: JwtService,
   ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
+  async signup(@Body() signupDto: SignupDto) {
+    return this.authService.signup(signupDto);
   }
 
   @Get('debug-token')
@@ -35,6 +42,20 @@ export class AuthController {
       console.log('❌ Token verification failed:', error.message);
       return { success: false, error: error.message };
     }
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('pending-users')
+  async getPendingUsers(@Request() req) {
+    const adminId = req.user?.sub ?? req.user?.id;
+    return this.authService.getPendingUsers(adminId);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Post('validate-user/:id')            
+  @HttpCode(HttpStatus.OK)
+  async validateUser(@Param('id') userId: string, @Request() req) {
+    // get admin id from token payload (your tokens include `sub`)
+    const adminId = req.user?.sub ?? req.user?.id;
+    return this.authService.validateUserAccount(userId, adminId);
   }
 
 }

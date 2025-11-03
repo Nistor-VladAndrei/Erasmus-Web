@@ -12,6 +12,7 @@ export declare class ArticlesService {
         total: number;
     }>;
     findAllForAdmin(): Promise<Article[]>;
+    findAllForUser(userId: string): Promise<Article[]>;
     findOne(id: string): Promise<Article>;
     findBySlug(slug: string): Promise<Article>;
     create(createArticleDto: CreateArticleDto, authorId: string): Promise<Article>;

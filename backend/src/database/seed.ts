@@ -12,15 +12,16 @@ async function seed() {
     const articleRepository = AppDataSource.getRepository(Article);
 
     // Create admin user
-    const existingAdmin = await userRepository.findOne({ where: { email: 'admin@fratii-buzesti.ro' } });
+    const existingAdmin = await userRepository.findOne({ where: { username: 'admin' } });
     
     let adminUser: User;
     if (!existingAdmin) {
-      const passwordHash = await bcrypt.hash('admin123', 10);
+      const passwordHash = await bcrypt.hash('admin', 10);
       adminUser = userRepository.create({
-        email: 'admin@fratii-buzesti.ro',
+        username: 'admin',
         passwordHash,
         role: 'admin',
+        isValidated: true,
       });
       await userRepository.save(adminUser);
       console.log('Admin user created: admin@fratii-buzesti.ro / admin123');

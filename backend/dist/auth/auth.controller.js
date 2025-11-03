@@ -16,8 +16,10 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const login_dto_1 = require("./dto/login.dto");
+const SignupDto_dto_1 = require("./dto/SignupDto.dto");
 const common_2 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const jwt_auth_guard_1 = require("./jwt-auth.guard");
 let AuthController = class AuthController {
     constructor(authService, jwtService) {
         this.authService = authService;
@@ -25,6 +27,9 @@ let AuthController = class AuthController {
     }
     async login(loginDto) {
         return this.authService.login(loginDto);
+    }
+    async signup(signupDto) {
+        return this.authService.signup(signupDto);
     }
     debugToken(auth) {
         const token = auth?.replace('Bearer ', '');
@@ -41,6 +46,14 @@ let AuthController = class AuthController {
             return { success: false, error: error.message };
         }
     }
+    async getPendingUsers(req) {
+        const adminId = req.user?.sub ?? req.user?.id;
+        return this.authService.getPendingUsers(adminId);
+    }
+    async validateUser(userId, req) {
+        const adminId = req.user?.sub ?? req.user?.id;
+        return this.authService.validateUserAccount(userId, adminId);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -52,12 +65,38 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
+    (0, common_1.Post)('signup'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [SignupDto_dto_1.SignupDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "signup", null);
+__decorate([
     (0, common_1.Get)('debug-token'),
     __param(0, (0, common_2.Headers)('authorization')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "debugToken", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('pending-users'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getPendingUsers", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('validate-user/:id'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "validateUser", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService,

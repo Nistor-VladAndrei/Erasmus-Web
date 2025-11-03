@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Article, ArticlesResponse, LoginResponse } from '../Types/types';
+import { Article, ArticlesResponse, LoginResponse, SignupResponse } from '../Types/types';
 
 const API_URL =  'http://localhost:3008/api';
 
@@ -21,11 +21,14 @@ api.interceptors.request.use((config) => {
 
 // Auth API
 export const authAPI = {
-  login: async (email: string, password: string): Promise<LoginResponse> => {
-    const { data } = await api.post('/auth/login', { email, password });
-    
+  login: async (username: string, password: string): Promise<LoginResponse> => {
+    const { data } = await api.post('/auth/login', { username, password });
     return data;
   },
+  signup: async (username: string, password: string): Promise<SignupResponse> => {
+    const { data } = await api.post('/auth/signup', { username, password });
+    return data;
+  }
 };
 
 // Articles API
@@ -35,6 +38,9 @@ export const articlesAPI = {
 
   getAllForAdmin: () =>
     api.get('/articles/admin').then(res => res.data),
+
+  getAllForUser: () =>
+    api.get('/articles/mine').then(res => res.data),
 
   getOne: (id: string) =>
     api.get(`/articles/${id}`).then(res => res.data),

@@ -21,15 +21,49 @@ let UsersService = class UsersService {
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
     }
-    async findByEmail(email) {
-        return this.usersRepository.findOne({ where: { email } });
+    async findByUsername(username) {
+        return this.usersRepository.findOne({ where: { username } });
     }
     async findById(id) {
-        return this.usersRepository.findOne({ where: { id } });
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
+        return user;
     }
-    async create(email, passwordHash, role = 'admin') {
-        const user = this.usersRepository.create({ email, passwordHash, role });
+    async create(userData) {
+        const user = this.usersRepository.create({
+            ...userData,
+            isValidated: userData.isValidated ?? false,
+        });
         return this.usersRepository.save(user);
+    }
+    async update(id, updateData) {
+        const user = await this.findById(id);
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
+        Object.assign(user, updateData);
+        return this.usersRepository.save(user);
+    }
+    async findPendingUsers() {
+        return this.usersRepository.find({
+            where: { isValidated: false },
+            select: ['id', 'username', 'role', 'isValidated', 'createdAt'],
+            order: { createdAt: 'DESC' },
+        });
+    }
+    async findAll() {
+        return this.usersRepository.find({
+            select: ['id', 'username', 'role', 'isValidated', 'createdAt'],
+            order: { createdAt: 'DESC' },
+        });
+    }
+    async delete(id) {
+        const result = await this.usersRepository.delete(id);
+        if (result.affected === 0) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
     }
 };
 exports.UsersService = UsersService;

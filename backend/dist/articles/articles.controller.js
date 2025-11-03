@@ -22,6 +22,10 @@ let ArticlesController = class ArticlesController {
     constructor(articlesService) {
         this.articlesService = articlesService;
     }
+    async getMyArticles(req, page, limit) {
+        const userId = req.user?.sub ?? req.user?.id;
+        return this.articlesService.findAllForUser(userId);
+    }
     async findAll(page = 1, limit = 10) {
         return this.articlesService.findAll(+page, +limit);
     }
@@ -44,6 +48,16 @@ let ArticlesController = class ArticlesController {
     }
 };
 exports.ArticlesController = ArticlesController;
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('mine'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('page', new common_1.DefaultValuePipe(1), common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Query)('limit', new common_1.DefaultValuePipe(20), common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, Number]),
+    __metadata("design:returntype", Promise)
+], ArticlesController.prototype, "getMyArticles", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),

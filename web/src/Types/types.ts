@@ -1,6 +1,6 @@
 export interface User {
   id: string;
-  email: string;
+  username: string;
   role: string;
 }
 
@@ -20,6 +20,10 @@ export interface Article {
 }
 
 export interface LoginResponse {
+  access_token: string;
+  user: User;
+}
+export interface SignupResponse {
   access_token: string;
   user: User;
 }

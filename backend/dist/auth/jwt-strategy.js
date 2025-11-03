@@ -34,7 +34,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 console.log('User not found in database');
                 throw new common_1.UnauthorizedException('User not found');
             }
-            const result = { userId: user.id, email: user.email, role: user.role };
+            const result = { userId: user.id, username: user.username, role: user.role };
             console.log('Returning user object:', result);
             return result;
         }

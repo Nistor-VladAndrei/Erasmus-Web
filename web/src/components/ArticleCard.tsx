@@ -45,7 +45,7 @@ export default function ArticleCard({ article, index }: ArticleCardProps) {
             <div className="flex items-center justify-between text-sm text-white/60 pt-4 border-t border-white/10">
               <div className="flex items-center space-x-2">
                 <User size={16} />
-                <span>{article.author.email.split('@')[0]}</span>
+                <span>{article.author.username}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Calendar size={16} />

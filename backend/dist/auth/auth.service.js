@@ -53,7 +53,7 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     async login(loginDto) {
-        const user = await this.usersService.findByEmail(loginDto.email);
+        const user = await this.usersService.findByUsername(loginDto.username);
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
@@ -61,7 +61,10 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const payload = { email: user.email, sub: user.id, role: user.role };
+        if (!user.isValidated) {
+            throw new common_1.UnauthorizedException('Your account is pending admin approval');
+        }
+        const payload = { username: user.username, sub: user.id, role: user.role };
         const token = this.jwtService.sign(payload);
         console.log('Generated payload:', payload);
         console.log('Generated token:', token);
@@ -69,18 +72,74 @@ let AuthService = class AuthService {
             access_token: token,
             user: {
                 id: user.id,
-                email: user.email,
+                username: user.username,
                 role: user.role,
             },
         };
     }
-    async validateUser(email, password) {
-        const user = await this.usersService.findByEmail(email);
+    async signup(signupDto) {
+        const existingUser = await this.usersService.findByUsername(signupDto.username);
+        if (existingUser) {
+            throw new common_1.ConflictException('User with this username already exists');
+        }
+        if (signupDto.password.length < 6) {
+            throw new common_1.BadRequestException('Password must be at least 6 characters long');
+        }
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(signupDto.password, saltRounds);
+        const user = await this.usersService.create({
+            username: signupDto.username,
+            passwordHash,
+            role: 'user',
+            isValidated: false,
+        });
+        console.log('User created:', user.username);
+        console.log('User requires admin validation');
+        return {
+            message: 'Account created successfully. Please wait for admin approval before logging in.',
+            user: {
+                id: user.id,
+                username: user.username,
+                role: user.role,
+                isValidated: user.isValidated,
+            },
+        };
+    }
+    async validateUser(username, password) {
+        const user = await this.usersService.findByUsername(username);
         if (user && await bcrypt.compare(password, user.passwordHash)) {
             const { passwordHash, ...result } = user;
             return result;
         }
         return null;
+    }
+    async validateUserAccount(userId, adminId) {
+        const admin = await this.usersService.findById(adminId);
+        if (!admin || admin.role !== 'admin') {
+            throw new common_1.UnauthorizedException('Only admins can validate user accounts');
+        }
+        const user = await this.usersService.update(userId, { isValidated: true });
+        if (!user) {
+            throw new common_1.BadRequestException('User not found');
+        }
+        console.log(`User ${user.username} validated by admin ${admin.username}`);
+        return {
+            message: 'User account validated successfully',
+            user: {
+                id: user.id,
+                email: user.username,
+                role: user.role,
+                isValidated: user.isValidated,
+            },
+        };
+    }
+    async getPendingUsers(adminId) {
+        const admin = await this.usersService.findById(adminId);
+        if (!admin || admin.role !== 'admin') {
+            throw new common_1.UnauthorizedException('Only admins can view pending users');
+        }
+        const pendingUsers = await this.usersService.findPendingUsers();
+        return pendingUsers;
     }
 };
 exports.AuthService = AuthService;

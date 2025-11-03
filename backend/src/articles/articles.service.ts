@@ -54,6 +54,13 @@ export class ArticlesService {
       order: { createdAt: 'DESC' },
     });
   }
+  async findAllForUser(userId: string): Promise<Article[]> {
+    return this.articlesRepository.find({
+      where: { authorId: userId  },   // nested where on relation
+      relations: ['author'],
+      order: { createdAt: 'DESC' },
+    });
+  }
 
   async findOne(id: string): Promise<Article> {
     const article = await this.articlesRepository.findOne({

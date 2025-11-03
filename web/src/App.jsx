@@ -10,6 +10,7 @@ import AdminDashboard from './Pages/AdminDashboard.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import Header from './components/Header.tsx';
 import Footer from './components/Footer.jsx';
+import SignUp from './Pages/SignUp.tsx';
 const queryClient = new QueryClient();
 
 function App() {
@@ -23,6 +24,8 @@ function App() {
           <Route path="/news" element={<News />} />
           <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+
           <Route
             path="/admin"
             element={

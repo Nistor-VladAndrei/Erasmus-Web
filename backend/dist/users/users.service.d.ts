@@ -3,7 +3,16 @@ import { User } from './entities/user.entity';
 export declare class UsersService {
     private usersRepository;
     constructor(usersRepository: Repository<User>);
-    findByEmail(email: string): Promise<User | null>;
+    findByUsername(username: string): Promise<User | null>;
     findById(id: string): Promise<User | null>;
-    create(email: string, passwordHash: string, role?: string): Promise<User>;
+    create(userData: {
+        username: string;
+        passwordHash: string;
+        role: string;
+        isValidated?: boolean;
+    }): Promise<User>;
+    update(id: string, updateData: Partial<User>): Promise<User>;
+    findPendingUsers(): Promise<User[]>;
+    findAll(): Promise<User[]>;
+    delete(id: string): Promise<void>;
 }

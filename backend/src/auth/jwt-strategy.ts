@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException('User not found');
       }
       
-      const result = { userId: user.id, email: user.email, role: user.role };
+      const result = { userId: user.id, username: user.username, role: user.role };
       console.log('Returning user object:', result);
       return result;
     } catch (error) {

@@ -1,5 +1,6 @@
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/SignupDto.dto';
 import { JwtService } from '@nestjs/jwt';
 export declare class AuthController {
     private authService;
@@ -9,8 +10,17 @@ export declare class AuthController {
         access_token: string;
         user: {
             id: string;
-            email: string;
+            username: string;
             role: string;
+        };
+    }>;
+    signup(signupDto: SignupDto): Promise<{
+        message: string;
+        user: {
+            id: string;
+            username: string;
+            role: string;
+            isValidated: boolean;
         };
     }>;
     debugToken(auth: string): {
@@ -22,4 +32,14 @@ export declare class AuthController {
         error: any;
         decoded?: undefined;
     };
+    getPendingUsers(req: any): Promise<import("../users/entities/user.entity").User[]>;
+    validateUser(userId: string, req: any): Promise<{
+        message: string;
+        user: {
+            id: string;
+            email: string;
+            role: string;
+            isValidated: boolean;
+        };
+    }>;
 }

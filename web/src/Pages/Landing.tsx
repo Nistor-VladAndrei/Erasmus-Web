@@ -62,9 +62,9 @@ function ArticleCard({ article, index, onClick }: ArticleCardProps) {
           <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-200">
             <div className="flex items-center text-gray-500 text-sm">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-semibold mr-2">
-                {article.author.email.charAt(0).toUpperCase()}
+                {article.author.username.charAt(0).toUpperCase()}
               </div>
-              <span>{article.author.email.split('@')[0]}</span>
+              <span>{article.author.username.split('@')[0]}</span>
             </div>
             <span className="inline-flex items-center text-blue-600 font-medium group-hover:gap-3 gap-2 transition-all">
               Read <ArrowRight size={18} />
@@ -89,7 +89,7 @@ const partners = [
 export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
    const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  
+  const [scrolled, setScrolled] = useState(false);
   const { data, isLoading, error } = useQuery({
     queryKey: ['articles'],
     queryFn: () => articlesAPI.getAll(1, 3),
@@ -133,6 +133,10 @@ export default function Landing() {
   }, []);
 
   if (selectedArticle) {
+      if(!scrolled) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setScrolled(true);
+      }
       return (
         <>
           <div className="min-h-screen bg-white">
@@ -156,7 +160,6 @@ export default function Landing() {
                 )}
               </motion.div>
   
-              {/* ------------- CHANGED: overlay now centers title block and places the Back button above H1 ------------- */}
               <div className="relative z-10 h-full flex items-center p-6 md:p-12 pt-16 md:pt-20">
                 <div className="max-w-4xl w-full">
                   <motion.div
@@ -165,9 +168,11 @@ export default function Landing() {
                     transition={{ duration: 0.8, delay: 0.3 }}
                     className="flex flex-col items-start"
                   >
-                    {/* Back button moved here so it sits immediately above the title */}
                     <motion.button
-                      onClick={() => setSelectedArticle(null)}
+                      onClick={() => {
+                        setSelectedArticle(null)
+                        setScrolled(false);
+                      }}
                       className="inline-flex items-center space-x-2 text-white hover:text-blue-300 transition-colors bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -208,11 +213,11 @@ export default function Landing() {
                           whileHover={{ scale: 1.05 }}
                         >
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
-                            {selectedArticle.author.email.charAt(0).toUpperCase()}
+                            {selectedArticle.author.username.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="text-sm text-gray-500">Author</p>
-                            <p className="font-medium text-gray-900">{selectedArticle.author.email.split('@')[0]}</p>
+                            <p className="font-medium text-gray-900">{selectedArticle.author.username}</p>
                           </div>
                         </motion.div>
                         

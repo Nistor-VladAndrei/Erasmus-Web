@@ -7,7 +7,7 @@ export class User {
   id: string;
 
   @Column({ unique: true })
-  email: string;
+  username: string;
 
   @Column()
   passwordHash: string;
@@ -17,6 +17,9 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ default: false })
+  isValidated: boolean;
 
   @OneToMany(() => Article, article => article.author)
   articles: Article[];

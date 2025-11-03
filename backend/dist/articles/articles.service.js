@@ -60,6 +60,13 @@ let ArticlesService = class ArticlesService {
             order: { createdAt: 'DESC' },
         });
     }
+    async findAllForUser(userId) {
+        return this.articlesRepository.find({
+            where: { authorId: userId },
+            relations: ['author'],
+            order: { createdAt: 'DESC' },
+        });
+    }
     async findOne(id) {
         const article = await this.articlesRepository.findOne({
             where: { id },

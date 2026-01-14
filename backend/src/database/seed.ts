@@ -14,11 +14,7 @@ async function seed() {
     const projectRepository = AppDataSource.getRepository(Project);
 
     // Clean start - drop all data
-    console.log('Cleaning database...');
-    await articleRepository.delete({});
-    await projectRepository.delete({});
-    await userRepository.delete({});
-    console.log('Database cleaned');
+  
 
     // Create admin user
     const passwordHash = await bcrypt.hash('admin', 10);

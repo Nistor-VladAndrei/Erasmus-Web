@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const data_source_1 = require("./data-source");
 const user_entity_1 = require("../users/entities/user.entity");
 const article_entity_1 = require("../articles/entities/article.entity");
+const project_entity_1 = require("../projects/entities/project.entity");
 const bcrypt = __importStar(require("bcryptjs"));
 async function seed() {
     try {
@@ -43,23 +44,31 @@ async function seed() {
         console.log('Database connected for seeding');
         const userRepository = data_source_1.AppDataSource.getRepository(user_entity_1.User);
         const articleRepository = data_source_1.AppDataSource.getRepository(article_entity_1.Article);
-        const existingAdmin = await userRepository.findOne({ where: { username: 'admin' } });
-        let adminUser;
-        if (!existingAdmin) {
-            const passwordHash = await bcrypt.hash('admin', 10);
-            adminUser = userRepository.create({
-                username: 'admin',
-                passwordHash,
-                role: 'admin',
-                isValidated: true,
-            });
-            await userRepository.save(adminUser);
-            console.log('Admin user created: admin@fratii-buzesti.ro / admin123');
-        }
-        else {
-            adminUser = existingAdmin;
-            console.log('Admin user already exists');
-        }
+        const projectRepository = data_source_1.AppDataSource.getRepository(project_entity_1.Project);
+        const passwordHash = await bcrypt.hash('admin', 10);
+        const adminUser = userRepository.create({
+            username: 'admin',
+            passwordHash,
+            role: 'admin',
+            isValidated: true,
+        });
+        await userRepository.save(adminUser);
+        console.log('Admin user created: admin / admin');
+        const erasmusProject = projectRepository.create({
+            name: 'Erasmus+ Mobility',
+        });
+        await projectRepository.save(erasmusProject);
+        console.log('Project created: Erasmus+ Mobility');
+        const stemProject = projectRepository.create({
+            name: 'STEM Innovation',
+        });
+        await projectRepository.save(stemProject);
+        console.log('Project created: STEM Innovation');
+        const culturalProject = projectRepository.create({
+            name: 'Cultural Exchange',
+        });
+        await projectRepository.save(culturalProject);
+        console.log('Project created: Cultural Exchange');
         const sampleArticles = [
             {
                 title: 'Erasmus+ Mobility Program Launch',
@@ -79,6 +88,7 @@ async function seed() {
                 imageUrls: ['https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800'],
                 published: true,
                 authorId: adminUser.id,
+                projectId: erasmusProject.id,
             },
             {
                 title: 'Student Exchange to Germany',
@@ -99,6 +109,7 @@ async function seed() {
                 imageUrls: ['https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800'],
                 published: true,
                 authorId: adminUser.id,
+                projectId: erasmusProject.id,
             },
             {
                 title: 'Teacher Training Workshop in Portugal',
@@ -120,17 +131,50 @@ async function seed() {
                 imageUrls: ['https://images.unsplash.com/photo-1588075592446-265fd1e6e76f?w=800'],
                 published: true,
                 authorId: adminUser.id,
+                projectId: erasmusProject.id,
+            },
+            {
+                title: 'STEM Robotics Competition Success',
+                slug: 'stem-robotics-competition',
+                excerpt: 'Our robotics team won first place at the National STEM Innovation Challenge.',
+                content: `<h2>Victory at National STEM Challenge</h2>
+          <p>We are proud to announce that our school's robotics team has won first place at the prestigious National STEM Innovation Challenge held in Bucharest.</p>
+          <h3>The Winning Project</h3>
+          <p>The team developed an autonomous robot capable of sorting recyclable materials using AI and computer vision. This innovative solution addresses real-world environmental challenges.</p>
+          <p>The competition featured teams from over 50 schools nationwide, making this achievement even more remarkable.</p>`,
+                coverImageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800',
+                imageUrls: ['https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800'],
+                published: true,
+                authorId: adminUser.id,
+                projectId: stemProject.id,
+            },
+            {
+                title: 'International Folk Dance Festival',
+                slug: 'folk-dance-festival',
+                excerpt: 'Students showcase traditional Romanian dances at international cultural festival in Spain.',
+                content: `<h2>Romanian Culture Shines in Barcelona</h2>
+          <p>Our folk dance ensemble brilliantly represented Romania at the International Youth Folk Festival in Barcelona, performing traditional dances from various regions of our country.</p>
+          <h3>Cultural Ambassador</h3>
+          <p>The students not only performed but also conducted workshops teaching other participants traditional Romanian dances, fostering cultural exchange and understanding.</p>
+          <p>This event strengthened our cultural ties with partner schools across Europe and showcased the richness of Romanian heritage.</p>`,
+                coverImageUrl: 'https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800',
+                imageUrls: ['https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800'],
+                published: true,
+                authorId: adminUser.id,
+                projectId: culturalProject.id,
             },
         ];
         for (const articleData of sampleArticles) {
-            const existing = await articleRepository.findOne({ where: { slug: articleData.slug } });
-            if (!existing) {
-                const article = articleRepository.create(articleData);
-                await articleRepository.save(article);
-                console.log(`Article created: ${articleData.title}`);
-            }
+            const article = articleRepository.create(articleData);
+            await articleRepository.save(article);
+            console.log(`Article created: ${articleData.title}`);
         }
         console.log('Seeding completed successfully');
+        console.log('=================================');
+        console.log('Admin credentials: admin / admin');
+        console.log('Projects created: 3');
+        console.log('Articles created: 5');
+        console.log('=================================');
         await data_source_1.AppDataSource.destroy();
     }
     catch (error) {

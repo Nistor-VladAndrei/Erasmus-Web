@@ -20,6 +20,7 @@ import {
   Eye,
   FileText,
   Upload,
+  Heading1,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassCard from '../components/GlassCard.tsx';
@@ -365,13 +366,13 @@ export default function ArticleEditor() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                    onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
                     className={`p-3 rounded-xl hover:bg-blue-100 transition-colors ${
-                      editor?.isActive('heading', { level: 2 }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
+                      editor?.isActive('heading', { level: 1 }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'
                     }`}
-                    title="Heading 2"
+                    title="Heading 1"
                   >
-                    <Heading2 size={18} />
+                    <Heading1 size={18} />
                   </button>
                   <button
                     type="button"

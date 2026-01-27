@@ -44,4 +44,9 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], UpdateArticleDto.prototype, "published", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateArticleDto.prototype, "projectId", void 0);
 //# sourceMappingURL=update-article.dto.js.map

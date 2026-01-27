@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Article = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../../users/entities/user.entity");
+const project_entity_1 = require("../../projects/entities/project.entity");
 let Article = class Article {
 };
 exports.Article = Article;
@@ -56,6 +57,15 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Article.prototype, "authorId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => project_entity_1.Project, project => project.articles),
+    (0, typeorm_1.JoinColumn)({ name: 'projectId' }),
+    __metadata("design:type", project_entity_1.Project)
+], Article.prototype, "project", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Article.prototype, "projectId", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

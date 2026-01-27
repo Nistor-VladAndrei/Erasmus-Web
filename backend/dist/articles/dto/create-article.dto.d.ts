@@ -5,4 +5,5 @@ export declare class CreateArticleDto {
     coverImageUrl?: string;
     imageUrls?: string[];
     published?: boolean;
+    projectId: string;
 }

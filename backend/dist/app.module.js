@@ -18,6 +18,7 @@ const articles_module_1 = require("./articles/articles.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 const user_entity_1 = require("./users/entities/user.entity");
 const article_entity_1 = require("./articles/entities/article.entity");
+const project_entity_1 = require("./projects/entities/project.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,7 +35,7 @@ exports.AppModule = AppModule = __decorate([
                 username: process.env.DB_USERNAME || 'postgres',
                 password: process.env.DB_PASSWORD || 'postgres',
                 database: process.env.DB_DATABASE || 'fratii_buzesti',
-                entities: [user_entity_1.User, article_entity_1.Article],
+                entities: [user_entity_1.User, article_entity_1.Article, project_entity_1.Project],
                 synchronize: process.env.NODE_ENV === 'development',
                 logging: process.env.NODE_ENV === 'development',
             }),

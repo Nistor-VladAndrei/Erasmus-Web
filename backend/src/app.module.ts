@@ -9,6 +9,7 @@ import { ArticlesModule } from './articles/articles.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { User } from './users/entities/user.entity';
 import { Article } from './articles/entities/article.entity';
+import { Project } from './projects/entities/project.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { Article } from './articles/entities/article.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_DATABASE || 'fratii_buzesti',
-      entities: [User, Article],
+      entities: [User, Article, Project],
       synchronize: process.env.NODE_ENV === 'development',
       logging: process.env.NODE_ENV === 'development',
     }),

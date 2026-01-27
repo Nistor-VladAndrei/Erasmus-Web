@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsArray, IsUUID } from 'class-validator';
 
 export class UpdateArticleDto {
   @IsString()
@@ -24,4 +24,8 @@ export class UpdateArticleDto {
   @IsBoolean()
   @IsOptional()
   published?: boolean;
+
+  @IsUUID()
+  @IsOptional()
+  projectId?: string;
 }

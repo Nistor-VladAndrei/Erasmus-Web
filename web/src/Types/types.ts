@@ -4,6 +4,11 @@ export interface User {
   role: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -15,6 +20,8 @@ export interface Article {
   published: boolean;
   author: User;
   authorId: string;
+  projectId: string;
+  project?: Project;
   createdAt: string;
   updatedAt: string;
 }

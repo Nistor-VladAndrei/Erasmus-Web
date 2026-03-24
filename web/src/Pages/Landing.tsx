@@ -4,6 +4,7 @@ import { School, ArrowRight, Globe, Users, Award, MapPin, Calendar, Heart, Loade
 import Header from '../components/Header.tsx';
 import EUStarAnimation from '../components/EUStarAnimation.tsx';
 import GlassCard from '../components/GlassCard.tsx';
+import { ProjectNameBadge } from '../components/ProjectNameBadge.tsx';
 import { useEffect, useState } from 'react';
 import { Article } from '../Types/types.ts';
 import { articlesAPI } from '../services/api.ts';
@@ -186,6 +187,7 @@ export default function Landing() {
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
                       {selectedArticle.title}
                     </h1>
+                    <ProjectNameBadge name={selectedArticle.project?.name} />
                     {selectedArticle.excerpt && (
                       <p className="text-xl text-white/90 font-light">
                         {selectedArticle.excerpt}

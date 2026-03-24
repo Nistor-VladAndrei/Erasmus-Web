@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, Loader2, FileText, Eye, Calendar, User, CheckCircle, XCircle, Users } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, FileText, Eye, Calendar, CheckCircle, Users, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { articlesAPI } from '../services/api.ts';
-import { Article, User as UserType } from '../Types/types';
-import { useState } from 'react';
+import { articlesAPI, projectsAPI } from '../services/api.ts';
+import { Article, Project } from '../Types/types';
+import { useState, type FormEvent } from 'react';
 import axios from 'axios';
 
 interface GlassCardProps {
@@ -52,6 +52,7 @@ const decodeToken = (token: string): { role: string; sub: string; username: stri
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'articles' | 'users'>('articles');
+  const [newProjectName, setNewProjectName] = useState('');
 
   // Check if user is admin by decoding JWT token
   const token = localStorage.getItem('token');
@@ -61,6 +62,28 @@ export default function AdminDashboard() {
   const { data: articles, isLoading } = useQuery({
     queryKey: ['admin-articles'],
     queryFn: () => articlesAPI.getAllForUser(),
+  });
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => projectsAPI.getAll(),
+    enabled: activeTab === 'articles',
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: (name: string) => projectsAPI.create({ name }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setNewProjectName('');
+      toast.success('Project created');
+    },
+    onError: (err: unknown) => {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        toast.error('A project with this name already exists');
+      } else {
+        toast.error('Failed to create project');
+      }
+    },
   });
 
   const { data: pendingUsers, isLoading: isLoadingUsers, refetch: refetchUsers } = useQuery({
@@ -111,6 +134,16 @@ export default function AdminDashboard() {
 
   const handleValidateUser = async (userId: string) => {
     validateUserMutation.mutate(userId);
+  };
+
+  const handleAddProject = (e: FormEvent) => {
+    e.preventDefault();
+    const name = newProjectName.trim();
+    if (!name) {
+      toast.error('Enter a project name');
+      return;
+    }
+    createProjectMutation.mutate(name);
   };
 
   const formatDate = (date: string) => {
@@ -260,6 +293,55 @@ export default function AdminDashboard() {
           {/* Articles Tab */}
           {activeTab === 'articles' && (
             <>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45 }}
+                className="mb-10"
+              >
+                <GlassCard className="p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-lg">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                      <Briefcase className="text-white" size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">Projects</h2>
+                      <p className="text-gray-600 text-sm">Create programs or themes, then assign articles when you edit them.</p>
+                    </div>
+                  </div>
+                  <form onSubmit={handleAddProject} className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <input
+                      type="text"
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      placeholder="Project name (e.g. Erasmus+ Mobility)"
+                      className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all bg-white"
+                    />
+                    <button
+                      type="submit"
+                      disabled={createProjectMutation.isPending}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                      {createProjectMutation.isPending ? 'Adding…' : 'Add project'}
+                    </button>
+                  </form>
+                  {projects.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No projects yet. Add one above before creating articles.</p>
+                  ) : (
+                    <ul className="flex flex-wrap gap-2">
+                      {projects.map((p: Project) => (
+                        <li
+                          key={p.id}
+                          className="rounded-lg bg-blue-50 text-blue-800 px-3 py-1.5 text-sm font-medium border border-blue-100"
+                        >
+                          {p.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </GlassCard>
+              </motion.div>
+
               {isLoading && (
                 <motion.div
                   initial={{ opacity: 0 }}

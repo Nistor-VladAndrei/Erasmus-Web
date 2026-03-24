@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassCard from '../components/GlassCard.tsx';
-import { articlesAPI, uploadAPI } from '../services/api.ts';
+import { articlesAPI, uploadAPI, projectsAPI } from '../services/api.ts';
 
 export default function ArticleEditor() {
   const { id } = useParams();
@@ -36,7 +36,13 @@ export default function ArticleEditor() {
   const [excerpt, setExcerpt] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [published, setPublished] = useState(true);
+  const [projectId, setProjectId] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => projectsAPI.getAll(),
+  });
 
   // Fetch article if editing
   const { data: article } = useQuery({
@@ -76,6 +82,7 @@ export default function ArticleEditor() {
       setExcerpt(article.excerpt);
       setCoverImageUrl(article.coverImageUrl || '');
       setPublished(article.published);
+      setProjectId(article.projectId ?? '');
       editor.commands.setContent(article.content);
     }
   }, [article, editor]);
@@ -176,12 +183,18 @@ export default function ArticleEditor() {
       return;
     }
 
+    if (!projectId) {
+      toast.error('Please select a project');
+      return;
+    }
+
     saveMutation.mutate({
       title,
       excerpt,
       content,
       coverImageUrl: coverImageUrl || undefined,
       published,
+      projectId,
     });
   };
 
@@ -279,6 +292,31 @@ export default function ArticleEditor() {
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all bg-white resize-none"
                       placeholder="Write a brief description that will appear in the article preview"
                     />
+                  </div>
+
+                  {/* Project */}
+                  <div>
+                    <label htmlFor="projectId" className="block text-gray-700 font-semibold mb-2">
+                      Project *
+                    </label>
+                    <select
+                      id="projectId"
+                      value={projectId}
+                      onChange={(e) => setProjectId(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 focus:outline-none focus:border-blue-500 transition-all bg-white"
+                    >
+                      <option value="">Select a project</option>
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                    {projects.length === 0 && (
+                      <p className="mt-2 text-sm text-amber-700">
+                        No projects yet. Add one from the admin dashboard first.
+                      </p>
+                    )}
                   </div>
 
                   {/* Cover Image */}

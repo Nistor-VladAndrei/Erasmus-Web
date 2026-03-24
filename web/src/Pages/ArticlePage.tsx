@@ -1,24 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, User, Calendar, Share2 } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, User, Calendar, Share2, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react'; // or whatever loader you use
-import GlassCard from '../components/GlassCard.tsx'; // adjust import path
-// import types and helpers
-// import { Article } from '../Types/types';
-// import { formatDate } from '../utils/date'; // if you have this
-// import { handleShare } from './...'; // your share handler
+import toast from 'react-hot-toast';
+import GlassCard from '../components/GlassCard.tsx';
+import { ProjectNameBadge } from '../components/ProjectNameBadge.tsx';
+import { articlesAPI } from '../services/api.ts';
+import type { Article } from '../Types/types';
 
-interface Props {
-  isLoading: boolean;
-  error?: string | null;
-  article?: any; // swap for your Article type
-  handleShare: () => void;
-  formatDate: (iso: string) => string;
-}
-
-function ArticleHeader({ article }: { article: any }) {
-
+function ArticleHeader({ article }: { article: Article }) {
   return (
     <div className="mt-12">
       <Link
@@ -37,15 +27,44 @@ function ArticleHeader({ article }: { article: any }) {
   );
 }
 
-export default function ArticlePage({
-  isLoading,
-  error,
-  article,
-  handleShare,
-  formatDate,
-}: Props) {
+export default function ArticlePage() {
+  const { id } = useParams<{ id: string }>();
+
+  const { data: article, isLoading, isError } = useQuery({
+    queryKey: ['article', id],
+    queryFn: () => articlesAPI.getOne(id!),
+    enabled: Boolean(id),
+  });
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: article?.title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copied to clipboard');
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copied to clipboard');
+      } catch {
+        toast.error('Could not share');
+      }
+    }
+  };
+
+  const authorLabel = article?.author?.username ?? 'Author';
+
   return (
-    // make sure this top-level padding matches your header height (h-16 => pt-16)
     <div className="min-h-screen pt-16">
       <div className="pb-16 px-6">
         <div className="container mx-auto max-w-4xl">
@@ -55,7 +74,7 @@ export default function ArticlePage({
             </div>
           )}
 
-          {error && (
+          {isError && (
             <GlassCard className="p-12 text-center">
               <p className="text-red-300 text-lg">
                 Failed to load article. Please try again later.
@@ -69,7 +88,6 @@ export default function ArticlePage({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              {/* Make the card relative so content z-indexing is predictable */}
               <GlassCard className="overflow-hidden relative">
                 {article.coverImageUrl && (
                   <div className="h-96 overflow-hidden">
@@ -81,15 +99,19 @@ export default function ArticlePage({
                   </div>
                 )}
 
-                {/* content block sits above the image */}
                 <div className="p-8 md:p-12 relative z-10">
-                  {/* Header that includes the Back link + H1 */}
                   <ArticleHeader article={article} />
+
+                  {article.project?.name ? (
+                    <div className="mt-6 mb-2">
+                      <ProjectNameBadge name={article.project.name} />
+                    </div>
+                  ) : null}
 
                   <div className="flex flex-wrap items-center gap-6 text-white/70 mb-8 pb-8 border-b border-white/10">
                     <div className="flex items-center space-x-2">
                       <User size={18} />
-                      <span>{article.author.email.split('@')[0]}</span>
+                      <span>{authorLabel}</span>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -98,6 +120,7 @@ export default function ArticlePage({
                     </div>
 
                     <button
+                      type="button"
                       onClick={handleShare}
                       className="ml-auto flex items-center space-x-2 hover:text-white transition-colors"
                     >

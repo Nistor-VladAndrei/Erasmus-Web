@@ -4,6 +4,7 @@ import { articlesAPI } from '../services/api.ts';
 import { Loader2, Calendar, ArrowRight, Search } from 'lucide-react';
 import { useState } from 'react';
 import Header from '../components/Header.tsx';
+import { ProjectNameBadge } from '../components/ProjectNameBadge.tsx';
 
 interface Article {
   id: string;
@@ -14,6 +15,10 @@ interface Article {
   createdAt: string;
   author: {
     username: string;
+  };
+  project?: {
+    id: string;
+    name: string;
   };
 }
 
@@ -195,6 +200,7 @@ export default function News() {
                   <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
                     {selectedArticle.title}
                   </h1>
+                  <ProjectNameBadge name={selectedArticle.project?.name} />
                   {selectedArticle.excerpt && (
                     <p className="text-xl text-white/90 font-light">
                       {selectedArticle.excerpt}

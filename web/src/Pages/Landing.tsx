@@ -488,10 +488,6 @@ export default function Landing() {
                   <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                     {partner.name}
                   </h3>
-                  <div className="flex items-center justify-center text-gray-600">
-                    <MapPin size={16} className="mr-1" />
-                    <span>{partner.city}</span>
-                  </div>
                 </GlassCard>
               </motion.div>
             ))}
